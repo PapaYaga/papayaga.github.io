@@ -1,0 +1,120 @@
+ul > li.string
+{
+    display: table;
+    table-layout: auto;
+}
+
+ul > li.markers
+{
+    display: table;
+    table-layout: auto;
+}
+
+div #fretboard {
+    padding: 10px;
+}
+
+div #tuning {
+    padding: 10px;
+    display: block;
+}
+
+div #presets {
+    padding: 10px;
+}
+
+div.fret {
+    border-style: solid none solid solid;
+    border-width: 1px 0px 1px 5px;
+    text-align: center;
+    padding: 5px;
+
+    height: 20px;
+    line-height: 20px;
+
+    display: table-cell;
+}
+
+div.fret:first-of-type {
+    border-style: solid double solid none;
+    border-width: 1px 7px 1px 0px;
+}
+
+div.markers {
+    border-style: none;
+    padding: 6px 5px 6px 10px;
+}
+
+div.markers:first-of-type {
+    border-style: none;
+    padding: 6px 12px 6px 5px;
+}
+
+.narrowing:nth-child(1)
+{
+    width: 60px;
+}
+.narrowing:nth-child(2)
+{
+    width: 60px;
+}
+.narrowing:nth-child(3)
+{
+    width: 55px;
+}
+.narrowing:nth-child(4)
+{
+    width: 55px;
+}
+.narrowing:nth-child(5)
+{
+    width: 52px;
+}
+.narrowing:nth-child(6)
+{
+    width: 48px;
+}
+.narrowing:nth-child(7)
+{
+    width: 45px;
+}
+.narrowing:nth-child(8)
+{
+    width: 42px;
+}
+.narrowing:nth-child(9)
+{
+    width: 39px;
+}
+.narrowing:nth-child(10)
+{
+    width: 35px;
+}
+.narrowing:nth-child(11)
+{
+    width: 33px;
+}
+.narrowing:nth-child(12)
+{
+    width: 33px;
+}
+.narrowing:nth-child(13)
+{
+    width: 33px;
+}
+.narrowing:nth-child(14)
+{
+    width: 33px;
+}
+.narrowing:nth-child(15)
+{
+    width: 33px;
+}
+
+div.highlighted {
+    background-color: lightblue;
+}
+
+.hidden {
+    visibility: hidden;
+}

@@ -1,0 +1,185 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Fretboard</title>
+        <link rel="stylesheet" href="style.css"> 
+    </head>
+    <script src="./vue.global.prod.js"></script>
+
+    <body>
+        <div id="app">
+            <ul id="fretboard">
+                <li class="string" v-for="(string, index) in fretboard">
+                    <input type="button" value="+" @click="pitchUpString(index)">
+                    <input type="button" value="-" @click="pitchDownString(index)">
+                    <div class="fret narrowing" :class="{ highlighted: fret.marked }" v-for="fret in string">
+                        {{ fret.note }}
+                    </div>
+                </li>
+                <li class="markers">
+                    <input class="hidden" type="button" value="+"> 
+                    <input class="hidden" type="button" value="-"> 
+                    <div class="fret markers narrowing" v-for="n in 11">
+                        <div v-if="[3, 5, 7, 9].includes(n-1)">{{ n - 1 }}</div>
+                        <div v-else> </div>
+                    </div>
+                </li>
+            </ul>
+            <div id="tuning">
+                <input type="button" value="+ string" @click="addString">
+                <input type="button" value="- string" @click="removeString">
+            </div>
+            <div id="presets">
+                Presets:
+                <input type="button" v-for="(notes, preset) in presets" v-bind:value="preset" @click="selectPreset(preset)" />
+            </div>
+            <div id="chords">
+                <select v-model="selectedBaseNote">
+                    <option v-for="note in baseNotes">{{ note }}</option>
+                </select>
+                <select v-model="selectedType">
+                    <option v-for="type in possibleTypes">{{ type }}</option>
+                </select>
+                <input type="button" value="Highlight" @click="highlightNotes">
+            </div>
+        </div>
+    </body>
+
+    <script>
+        const { createApp, ref } = Vue
+
+        const noteOrder = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+        const presets = {
+            "Guitar": ["E", "A", "D", "G", "B", "E"],
+            "E. Bass (4 string)": ["E", "A", "D", "G"],
+            "E. Bass (5 string, low)": ["B", "E", "A", "D", "G"],
+            "E. Bass (5 string, high)": ["E", "A", "D", "G", "C"],
+        }
+
+        const highlights = {
+            "Major scale": [0, 2, 4, 5, 7, 9, 11],
+            "Major chord": [0, 4, 7],
+            "Major 7th chord": [0, 4, 7, 11],
+        }
+
+        function advanceNoteBy(noteIdx, semitones)
+        {
+            return noteOrder[(noteIdx + semitones) % noteOrder.length ]
+        }
+        function noteNameToIdx(noteName)
+        {
+            return noteOrder.findIndex((element) => element == noteName);
+        }
+
+        function buildFretboard(tuning)
+        {
+            var fretboard = []
+            for (let i = tuning.length-1; i >=0 ; i--)
+            {
+                var firstNote = noteNameToIdx(tuning[i]);
+                var frets = [];
+                for(let j = 0; j < 12; j++)
+                {
+                    frets.push({note: advanceNoteBy(firstNote, j), marked: false})
+                }
+
+                fretboard.push(frets)
+            }
+            return fretboard
+        }
+
+        createApp({
+        setup() {
+            var tuning = ref(["E", "A", "D", "G", "B", "E"]);
+            var fretboard = ref(buildFretboard(tuning.value))
+            const baseNotes = structuredClone(noteOrder)
+            var selectedBaseNote = ref("C")
+            const possibleTypes = Object.getOwnPropertyNames(highlights)
+            var selectedType = ref("Major scale")
+
+            function generateFretboard()
+            {
+                fretboard.value = buildFretboard(tuning.value)
+            }
+
+            function pitchUpString(whichStringReverse)
+            {
+                var whichString = tuning.value.length - whichStringReverse - 1
+                tuning.value[whichString] = advanceNoteBy(noteNameToIdx(tuning.value[whichString]), 1)
+                generateFretboard()
+            }
+            function pitchDownString(whichStringReverse)
+            {
+                var whichString = tuning.value.length - whichStringReverse - 1
+                tuning.value[whichString] = advanceNoteBy(noteNameToIdx(tuning.value[whichString]), -1)
+                generateFretboard()
+            }
+
+            function addString()
+            {
+                if(tuning.value.length > 0)
+                {
+                    const lastNote = noteNameToIdx(tuning.value[tuning.value.length-1])
+                    tuning.value.push(advanceNoteBy(lastNote, 5));
+                }
+                generateFretboard()
+            }
+            function removeString()
+            {
+                tuning.value.pop();
+                generateFretboard()
+            }
+
+            function selectPreset(preset)
+            {
+                tuning.value = structuredClone(presets[preset])
+                generateFretboard();
+            }
+
+            function highlightNotes()
+            {
+                var notesToHighlight = []
+                var baseNote = selectedBaseNote.value
+                var selected = selectedType.value
+
+                for(var noteOffset of highlights[selected])
+                {
+                    notesToHighlight.push(advanceNoteBy(noteNameToIdx(baseNote), noteOffset))
+                }
+
+                for (var string of fretboard.value)
+                {
+                    for (var fret of string)
+                    {
+                        fret.marked = false; // resetting previous selection
+                        if(notesToHighlight.includes(fret.note))
+                        {
+                            fret.marked = true;
+                        }
+                    }
+                }
+            }
+
+            return {
+                    fretboard,
+                    tuning,
+                    presets,
+                    addString,
+                    removeString,
+                    pitchUpString,
+                    pitchDownString,
+                    selectPreset,
+                    highlightNotes,
+                    baseNotes,
+                    selectedBaseNote,
+                    possibleTypes,
+                    selectedType
+            }
+        }
+        }).mount('#app')
+
+
+    </script>
+
+</html>
